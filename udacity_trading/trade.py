@@ -2,6 +2,7 @@
 
 import os
 import pandas as pd
+import arrow
 import matplotlib.pyplot as plt
 import urllib2
 import seaborn
@@ -22,17 +23,20 @@ def get_data(symbols, dates):
     for symbol in symbols:
         # Retrieve the webpage as a string
         url = 'http://real-chart.finance.yahoo.com/table.csv?s={}&d=11&e=21&f=2015&g=d&a=0&b=29&c=1993&ignore=.csv'.format(symbol)
-        response = urllib2.urlopen(url)
-        csv = response.read()
+        filename = '{}.csv'.format(symbol)
+        # If file already exists then don't call Yahoo
+        if not os.path.isfile(filename):
+            response = urllib2.urlopen(url)
+            csv = response.read()
 
-        # Save the string to a file
-        csvstr = str(csv).strip("b'")
+            # Save the string to a file
+            csvstr = str(csv).strip("b'")
 
-        lines = csvstr.split("\\n")
-        f = open("{}.csv".format(symbol), "w")
-        for line in lines:
-           f.write(line + "\n")
-        f.close()
+            lines = csvstr.split("\\n")
+            f = open("{}.csv".format(symbol), "w")
+            for line in lines:
+               f.write(line + "\n")
+            f.close()
 
         df_temp = pd.read_csv(symbol_to_path(symbol), index_col='Date',
                 parse_dates=True, usecols=['Date', 'Adj Close'], na_values=['nan'])
@@ -73,7 +77,8 @@ def get_bollinger_bands(rm, rstd):
 
 def test_run():
     # Read data
-    dates = pd.date_range('2015-01-01', '2015-12-19')
+    now = arrow.now()
+    dates = pd.date_range('2015-01-01', '2015-12-31')
     symbols = ['AMZN','GOOG','FB','AAPL','GDDY']
     df = get_data(symbols, dates)
 
@@ -100,6 +105,13 @@ def test_run():
         ax.set_ylabel("Price")
         ax.legend(loc='upper left')
         plt.show()
+
+# Linear regression learner beginnings
+# def train(x ,y):
+#     self.m,self.b = favorite_linreg(x,y) # scipy or numpy favorite lin regression function
+# def query(x):
+#     y = self.m * x + self.b
+#     return y
 
 
 if __name__ == "__main__":
