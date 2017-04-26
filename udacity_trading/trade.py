@@ -5,6 +5,7 @@ import pandas as pd
 import arrow
 import matplotlib.pyplot as plt
 import urllib2
+from datetime import datetime
 import seaborn
 
 
@@ -22,7 +23,11 @@ def get_data(symbols, dates):
 
     for symbol in symbols:
         # Retrieve the webpage as a string
-        url = 'http://real-chart.finance.yahoo.com/table.csv?s={}&d=11&e=21&f=2015&g=d&a=0&b=29&c=1993&ignore=.csv'.format(symbol)
+        dt = datetime.now()
+        day= dt.day
+        month = dt.month
+        year = dt.year
+        url = 'http://real-chart.finance.yahoo.com/table.csv?s={0}&d={1}&e={2}&f={3}&g=d&a=0&b=29&c=1993&ignore=.csv'.format(symbol, day, month,year)
         filename = '{}.csv'.format(symbol)
         # If file already exists then don't call Yahoo
         if not os.path.isfile(filename):
@@ -78,7 +83,7 @@ def get_bollinger_bands(rm, rstd):
 def test_run():
     # Read data
     now = arrow.now()
-    dates = pd.date_range('2015-01-01', '2015-12-31')
+    dates = pd.date_range('2015-01-01', '2017-04-24')
     symbols = ['AMZN','GOOG','FB','AAPL','GDDY']
     df = get_data(symbols, dates)
 
